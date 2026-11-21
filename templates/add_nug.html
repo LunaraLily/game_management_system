@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>添加游戏 - Django</title>
+    <!-- 引入Tailwind CSS保持样式统一 -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- 引入Font Awesome图标库 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <!-- 复用首页的自定义样式配置 -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#3b82f6',
+                        secondary: '#64748b',
+                        success: '#10b981',
+                        danger: '#ef4444',
+                        warning: '#f59e0b',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .table-shadow {
+                box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            }
+
+            .btn-hover {
+                transition: all 0.2s ease;
+            }
+
+            .btn-hover:hover {
+                transform: translateY(-2px);
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen py-8 px-4 sm:px-6 lg:px-8">
+<div class="max-w-4xl mx-auto">
+    <!-- 页面标题与返回按钮 -->
+    <div class="mb-8 flex flex-col sm:flex-row sm:justify-between sm:items-center">
+        <div>
+            <h1 class="text-[clamp(1.5rem,3vw,2.5rem)] font-bold text-gray-800">
+                添加游戏信息
+            </h1>
+            <p class="text-gray-600 mt-2">
+                录入新游戏的基本信息
+            </p>
+        </div>
+        <!-- 返回首页按钮 -->
+        <a href="{% url 'index' %}" class="mt-4 sm:mt-0 inline-flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 btn-hover">
+            <i class="fa-solid fa-arrow-left"></i>
+            <span>返回列表</span>
+        </a>
+    </div>
+    
+    <!-- 表格 -->
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-100">
+                    <tr>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">游戏</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">游戏平台</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">游戏公司</th>
+                    </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                    <!-- Django模板循环渲染数据 -->
+                    
+                    {% for game in games %}
+                      <tr class="hover:bg-gray-50 transition-colors">
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{forloop.counter}}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{{game.name}}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{{game.platform}}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{{ game.company }}</td>
+                      </tr>
+                      
+                    {% endfor %}
+    <!-- 表格 -->
+    <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-100">
+            <tr>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">游戏</th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">游戏平台</th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">游戏公司</th>
+            </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+            <!-- Django模板循环渲染数据 -->
+
+
+            </tbody>
+        </table>
+    </div>
+
+    <!-- 表单卡片 -->
+    <div class="bg-white rounded-lg table-shadow overflow-hidden">
+        <div class="p-6">
+            <!-- 游戏信息表单 -->
+
+            <form method="POST" class="space-y-6 max-w-2xl mx-auto">
+                <!-- Django CSRF保护 -->
+                {% csrf_token %}
+                <!-- 游戏名称 -->
+                <div>
+                    <label for="name" class="block text-sm font-medium text-gray-700 mb-1">游戏名称 <span class="text-danger">*</span></label>
+                    <input type="text"
+                           id="name"
+                           name="name"
+                           value=""
+                           class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary"
+                           placeholder="请输入游戏名称（如：英雄联盟）"
+                           required>
+                    {{error_mug}}  
+                </div>
+
+                <!-- 游戏平台 -->
+                <div>
+                    <label for="platform" class="block text-sm font-medium text-gray-700 mb-1">游戏平台 <span class="text-danger">*</span></label>
+                    <input type="text"
+                           id="platform"
+                           name="platform"
+                           value=""
+                           class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary"
+                           placeholder="请输入游戏平台（如：wegame）"
+                           required>
+                </div>
+
+                <!-- 游戏公司 -->
+                <div>
+                    <label for="company" class="block text-sm font-medium text-gray-700 mb-1">游戏公司 <span class="text-danger">*</span></label>
+                    <input type="text"
+                           id="company"
+                           name="company"
+                           value=""
+                           class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary"
+                           placeholder="请输入游戏公司（如：腾讯）"
+                           required>
+                </div>
+
+                <!-- 提交按钮区域 -->
+                <div class="flex justify-end space-x-3 pt-2">
+                    <button type="submit" class="px-4 py-2 bg-primary text-white rounded-lg btn-hover flex items-center gap-2">
+                        <i class="fa-solid fa-save"></i>
+                        <span>添加游戏</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+</body>
+</html>

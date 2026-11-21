@@ -1,0 +1,221 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>游戏信息管理 - Django</title>
+    <!-- 引入Tailwind CSS用于快速美化 -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- 引入Font Awesome图标库 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <!-- 自定义Tailwind配置 -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#3b82f6', // 主色调：蓝色
+                        secondary: '#64748b', // 次要色调：浅灰蓝
+                        success: '#10b981', // 成功色：绿色
+                        danger: '#ef4444', // 危险色：红色
+                        warning: '#f59e0b', // 警告色：黄色
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .table-shadow {
+                box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            }
+
+            .btn-hover {
+                transition: all 0.2s ease;
+            }
+
+            .btn-hover:hover {
+                transform: translateY(-2px);
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen py-8 px-4 sm:px-6 lg:px-8">
+<div class="max-w-4xl mx-auto">
+    <!-- 页面标题 -->
+    <div class="mb-8 text-center">
+        <h1 class="text-[clamp(1.5rem,3vw,2.5rem)] font-bold text-gray-800">游戏信息管理系统</h1>
+        <p class="text-gray-600 mt-2">管理游戏的基本信息，支持添加、编辑和删除操作</p>
+    </div>
+
+    <div class="mt-4 flex justify-center items-center gap-4 text-sm">
+    <span class="text-gray-700">你好，<b>{{ user.username }}</b></span>
+    <a href="{% url 'users:logout' %}"
+       class="px-3 py-1 bg-red-500 hover:bg-red-600 text-white rounded-md transition">
+        <i class="fa-solid fa-right-from-bracket mr-1"></i>退出登录
+    </a>
+</div>
+
+    <!-- 游戏信息表格 -->
+    <div class="bg-white rounded-lg table-shadow overflow-hidden">
+        <div class="p-6">
+            <!-- 添加按钮 - 跳转到Django的添加页面 -->
+            <div class="mb-6 flex justify-end">
+                <a href="{% url 'add_nug' %}" class="bg-primary text-white px-4 py-2 rounded-lg btn-hover flex items-center gap-2">
+                    <i class="fa-solid fa-plus"></i>
+                    <span>添加游戏</span>
+                </a>
+            </div>
+
+            <!-- 表格 -->
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-100">
+                    <tr>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">游戏</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">游戏平台</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">游戏公司</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">操作</th>
+                    </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                    <!-- Django模板循环渲染数据 -->
+                    
+                    {% for game in games %}
+                      <tr class="hover:bg-gray-50 transition-colors">
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{forloop.counter}}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{{game.name}}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{{game.platform}}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{{ game.company }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                    <!-- 编辑链接 - 传递游戏ID -->
+                                    <a href="{% url 'edit_nug' game.id %}" class="text-warning hover:text-warning/80 mr-3 btn-hover">
+                                        <i class="fa-solid fa-pen-to-square mr-1"></i>编辑
+                                    </a>
+                                    <!-- 删除链接 - 传递游戏ID（建议后续改为POST请求） -->
+                                    <a href="{% url 'del_nug' game.id %}" class="text-danger hover:text-danger/80 btn-hover" onclick="return confirm('确定要删除这条游戏信息吗？')">
+                                        <i class="fa-solid fa-trash mr-1"></i>删除
+                                    </a>
+                                </td>
+                            </tr>
+                    {% endfor %}
+                    
+                        
+{#                            <tr class="hover:bg-gray-50 transition-colors">#}
+{#                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">1</td>#}
+{#                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">LOL</td>#}
+{#                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">wegame</td>#}
+{#                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">腾讯</td>#}
+{#                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">#}
+{#                                    <!-- 编辑链接 - 传递游戏ID -->#}
+{#                                    <a href="/edit_msg/1" class="text-warning hover:text-warning/80 mr-3 btn-hover">#}
+{#                                        <i class="fa-solid fa-pen-to-square mr-1"></i>编辑#}
+{#                                    </a>#}
+{#                                    <!-- 删除链接 - 传递游戏ID（建议后续改为POST请求） -->#}
+{#                                    <a href="/del_msg/1" class="text-danger hover:text-danger/80 btn-hover" onclick="return confirm('确定要删除这条游戏信息吗？')">#}
+{#                                        <i class="fa-solid fa-trash mr-1"></i>删除#}
+{#                                    </a>#}
+{#                                </td>#}
+{#                            </tr>#}
+{#                        #}
+{#                            <tr class="hover:bg-gray-50 transition-colors">#}
+{#                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">2</td>#}
+{#                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">dota</td>#}
+{#                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">16平台</td>#}
+{#                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">暴雪</td>#}
+{#                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">#}
+{#                                    <!-- 编辑链接 - 传递游戏ID -->#}
+{#                                    <a href="/edit_msg/2" class="text-warning hover:text-warning/80 mr-3 btn-hover">#}
+{#                                        <i class="fa-solid fa-pen-to-square mr-1"></i>编辑#}
+{#                                    </a>#}
+{#                                    <!-- 删除链接 - 传递游戏ID（建议后续改为POST请求） -->#}
+{#                                    <a href="/del_msg/2" class="text-danger hover:text-danger/80 btn-hover" onclick="return confirm('确定要删除这条游戏信息吗？')">#}
+{#                                        <i class="fa-solid fa-trash mr-1"></i>删除#}
+{#                                    </a>#}
+{#                                </td>#}
+{#                            </tr>#}
+{#                        #}
+{#                            <tr class="hover:bg-gray-50 transition-colors">#}
+{#                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">3</td>#}
+{#                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">1</td>#}
+{#                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">2</td>#}
+{#                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">3</td>#}
+{#                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">#}
+{#                                    <!-- 编辑链接 - 传递游戏ID -->#}
+{#                                    <a href="/edit_msg/4" class="text-warning hover:text-warning/80 mr-3 btn-hover">#}
+{#                                        <i class="fa-solid fa-pen-to-square mr-1"></i>编辑#}
+{#                                    </a>#}
+{#                                    <!-- 删除链接 - 传递游戏ID（建议后续改为POST请求） -->#}
+{#                                    <a href="/del_msg/4" class="text-danger hover:text-danger/80 btn-hover" onclick="return confirm('确定要删除这条游戏信息吗？')">#}
+{#                                        <i class="fa-solid fa-trash mr-1"></i>删除#}
+{#                                    </a>#}
+{#                                </td>#}
+{#                            </tr>#}
+{#                        #}
+{#                            <tr class="hover:bg-gray-50 transition-colors">#}
+{#                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">4</td>#}
+{#                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">11</td>#}
+{#                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">11</td>#}
+{#                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">11</td>#}
+{#                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">#}
+{#                                    <!-- 编辑链接 - 传递游戏ID -->#}
+{#                                    <a href="/edit_msg/6" class="text-warning hover:text-warning/80 mr-3 btn-hover">#}
+{#                                        <i class="fa-solid fa-pen-to-square mr-1"></i>编辑#}
+{#                                    </a>#}
+{#                                    <!-- 删除链接 - 传递游戏ID（建议后续改为POST请求） -->#}
+{#                                    <a href="/del_msg/6" class="text-danger hover:text-danger/80 btn-hover" onclick="return confirm('确定要删除这条游戏信息吗？')">#}
+{#                                        <i class="fa-solid fa-trash mr-1"></i>删除#}
+{#                                    </a>#}
+{#                                </td>#}
+{#                            </tr>#}
+{#                        #}
+{#                            <tr class="hover:bg-gray-50 transition-colors">#}
+{#                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">5</td>#}
+{#                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">123</td>#}
+{#                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">123</td>#}
+{#                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">123</td>#}
+{#                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">#}
+                                    <!-- 编辑链接 - 传递游戏ID -->
+{#                                    <a href="/edit_msg/7" class="text-warning hover:text-warning/80 mr-3 btn-hover">#}
+{#                                        <i class="fa-solid fa-pen-to-square mr-1"></i>编辑#}
+{#                                    </a>#}
+{#                                    <!-- 删除链接 - 传递游戏ID（建议后续改为POST请求） -->#}
+{#                                    <a href="/del_msg/7" class="text-danger hover:text-danger/80 btn-hover" onclick="return confirm('确定要删除这条游戏信息吗？')">#}
+{#                                        <i class="fa-solid fa-trash mr-1"></i>删除#}
+{#                                    </a>#}
+{#                                </td>#}
+{#                            </tr>#}
+
+{#                            <tr class="hover:bg-gray-50 transition-colors">#}
+{#                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">6</td>#}
+{#                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">123</td>#}
+{#                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">123</td>#}
+{#                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">123</td>#}
+{#                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">#}
+{#                                    <!-- 编辑链接 - 传递游戏ID -->#}
+{#                                    <a href="/edit_msg/8" class="text-warning hover:text-warning/80 mr-3 btn-hover">#}
+{#                                        <i class="fa-solid fa-pen-to-square mr-1"></i>编辑#}
+{#                                    </a>#}
+{#                                    <!-- 删除链接 - 传递游戏ID（建议后续改为POST请求） -->#}
+{#                                    <a href="/del_msg/8" class="text-danger hover:text-danger/80 btn-hover" onclick="return confirm('确定要删除这条游戏信息吗？')">#}
+{#                                        <i class="fa-solid fa-trash mr-1"></i>删除#}
+{#                                    </a>#}
+{#                                </td>#}
+{#                            </tr>#}
+{#                        #}
+                    
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>
